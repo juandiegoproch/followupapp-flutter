@@ -46,11 +46,11 @@ class BottomDrawerFilterState extends State<BottomDrawerFilter> {
 class BottomDrawerFilter extends StatelessWidget {
   final Widget toggle, title, body;
   const BottomDrawerFilter({
+    super.key,
     required this.toggle,
     required this.title,
     required this.body,
-    Key? key,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -58,7 +58,7 @@ class BottomDrawerFilter extends StatelessWidget {
       width: double.infinity,
       child: Column(
         children: [
-          Row(children: [Expanded( child: title)]),
+          Row(children: [Expanded(child: title)]),
           Row(
             children: [
               const Spacer(),

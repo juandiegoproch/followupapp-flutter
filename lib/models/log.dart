@@ -1,18 +1,21 @@
 class LogEntry {
+  late int tId;
   late int id;
   late DateTime createdAt;
   late String logValue;
-  LogEntry(this.id, this.createdAt, this.logValue);
 
-  LogEntry.fromMap(Map<String, String> map) {
-    id = 1;
-    createdAt = DateTime.now();
-    logValue = "";
+  LogEntry.fromMap(Map<String, dynamic> map) {
+    print(map);
+    tId = map['taskId'];
+    id = map['lId'];
+    createdAt = DateTime.parse(map['lastModified']);
+    logValue = map['value'];
   }
 
   LogEntry.defaultPlaceholder(int? id, DateTime? created, String? value) {
-    id = 1;
-    createdAt = DateTime.now();
-    logValue = "";
+    id = id ?? 1;
+    tId = 0; // HACK placeholder value
+    createdAt = created ?? DateTime.now();
+    logValue = value ?? "";
   }
 }

@@ -23,21 +23,25 @@ class LogEntryWidget extends StatelessWidget {
                       "• ${DateFormat.yMd().add_jm().format(logEntry.createdAt)}",
                       style: const TextStyle(fontStyle: FontStyle.italic))),
               const Spacer(),
-              onEdit!=null?IconButton(
-                  // button for deleting the log
-                  style: ButtonStyle(
-                      backgroundColor: MaterialStateColor.resolveWith(
-                          (states) => Colors.grey)),
-                  onPressed: () => onEdit!(logEntry.id),
-                  icon: const Icon(Icons.edit)):Container(),
+              onEdit != null
+                  ? IconButton(
+                      // button for deleting the log
+                      style: ButtonStyle(
+                          backgroundColor: MaterialStateColor.resolveWith(
+                              (states) => Colors.grey)),
+                      onPressed: () => onEdit!(logEntry.id),
+                      icon: const Icon(Icons.edit))
+                  : Container(),
               const SizedBox(width: 5),
-              onDelete!=null?IconButton(
-                  // button for deleting the log
-                  style: ButtonStyle(
-                      backgroundColor: MaterialStateColor.resolveWith(
-                          (states) => Colors.red)),
-                  onPressed: () => onDelete!(logEntry.id),
-                  icon: const Icon(Icons.delete)):Container(),
+              onDelete != null
+                  ? IconButton(
+                      // button for deleting the log
+                      style: ButtonStyle(
+                          backgroundColor: MaterialStateColor.resolveWith(
+                              (states) => Colors.red)),
+                      onPressed: () => onDelete!(logEntry.id),
+                      icon: const Icon(Icons.delete))
+                  : Container(),
               const SizedBox(width: 5),
             ]),
             Align(
