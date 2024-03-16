@@ -19,7 +19,6 @@ class TasksViewScreenState extends State<TaskViewScreen> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     getTasks(filters).then((value) => setState(() => tasks = value));
   }
@@ -39,7 +38,12 @@ class TasksViewScreenState extends State<TaskViewScreen> {
               child: ListView(
                 scrollDirection: Axis.horizontal,
                 children: [
-                  FilterChip(label: const Text("a"), onSelected: (v) => {})
+                  FilterChip(
+                      label: const Text("a"),
+                      onSelected: (v) => showModalBottomSheet(
+                          context: context,
+                          builder: (context) => StatefulBuilder(
+                              builder: (context, setStateL) => Text("a"))))
                 ],
               )), // filters
           const Divider(

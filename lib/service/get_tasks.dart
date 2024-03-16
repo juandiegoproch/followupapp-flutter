@@ -1,3 +1,5 @@
+import 'package:followupapp/models/area.dart';
+import 'package:followupapp/models/person.dart';
 import 'package:followupapp/models/task.dart';
 import 'package:followupapp/models/filter_state.dart';
 import 'package:followupapp/service/database.dart';
@@ -6,7 +8,7 @@ Future<List<Task>> getTasks(FilterState filters) async {
   // Wait for the database to be up
   await whenDBUp();
 
-  (String, List<dynamic>) record = filters.toSqlWhere();
+  (String, List<dynamic>) record = toSqlWhere(filters);
 
   String query = """
     -- Returns each task with next milesone and end milestone concatenated in order
@@ -117,16 +119,169 @@ Future<List<Task>> getTasks(FilterState filters) async {
         ) as result)
       ${record.$1};
   """;
-
-
-  dynamic response = await db?.rawQuery(query,record.$2);
-  return [for (Map<String,dynamic> i in response) Task.fromDetailedMap(i)];
+  print(record.$1);
+  print(record.$2);
+  dynamic response = await db?.rawQuery(query, record.$2);
+  return [for (Map<String, dynamic> i in response) Task.fromDetailedMap(i)];
 }
 
-// returns list of tasks filtered and ordered as convinient by filterState. Null if error.
+/// utility stuff to make a filter object into a ("WHERE",ARGS) object
 
-/*Future<(Milestone,MilestoneStatus)> getTaskNextMilestone(int taskId) async
-{
-  return (Milestone.defaultPlaceholder(),MilestoneStatus.lateFinal);
+(String, List<dynamic>) toSqlWhere(FilterState f) {
+  String where = "";
+  List<dynamic> whereArgs = [];
+  bool hasPrev = false;
+
+  if (f.filterPeople) {
+    // for consistency:
+    // ignore: dead_code
+    if (hasPrev) where += " AND ";
+
+    dynamic ppl = peopleToSqlWhere(f);
+    where += ppl.$1;
+    whereArgs.addAll(ppl.$2);
+
+    hasPrev = true;
+  }
+
+  if (f.filterAreas) {
+    if (hasPrev) where += " AND ";
+
+    dynamic areas = areasToSqlWhere(f);
+    where += areas.$1;
+    whereArgs.addAll(areas.$2);
+
+    hasPrev = true;
+  }
+
+  if (f.filterTaskStates) {
+    if (hasPrev) where += " AND ";
+
+    dynamic tstates = taskStatesToSqlWhere(f);
+    where += tstates.$1;
+    whereArgs.addAll(tstates.$2);
+
+    hasPrev = true;
+  }
+
+  if (f.filterNextMilestone) {
+    if (hasPrev) where += " AND ";
+
+    dynamic nmilestone = nextToSqlWhere(f); // must return ('true',[]) if
+    /* no date is given */
+    where += nmilestone.$1;
+    whereArgs.addAll(nmilestone.$2);
+
+    hasPrev = true;
+  }
+
+  if (f.filterTaskStates) {
+    if (hasPrev) where += " AND ";
+
+    dynamic end = endToSqlWhere(f); // must return ('true',[]) if
+    /* no date is given */
+    where += end.$1;
+    whereArgs.addAll(end.$2);
+
+    hasPrev = true;
+  }
+
+  if (hasPrev) where = "WHERE $where";
+
+  return (where, whereArgs);
 }
-*/
+
+(String, List<dynamic>) peopleToSqlWhere(FilterState f) {
+  String where = "person IN (";
+  List<dynamic> whereargs = [];
+
+  for (Person i in f.allowedPeople) {
+    where += " ?,";
+    whereargs.add(i.personName);
+  }
+  where = where.substring(0, where.length - 1);
+  where += ')';
+  return (where, whereargs);
+}
+
+(String, List<dynamic>) areasToSqlWhere(FilterState f) {
+  String where = "area IN (";
+  List<dynamic> whereargs = [];
+
+  for (Area i in f.allowedAreas) {
+    where += " ?,";
+    whereargs.add(i.areaName);
+  }
+  where = where.substring(0, where.length - 1);
+  where += ')';
+  return (where, whereargs);
+}
+
+(String, List<dynamic>) taskStatesToSqlWhere(FilterState f) {
+  String where = "taskState IN (";
+  List<dynamic> whereargs = [];
+
+  for (TaskState i in f.allowedTaskStates) {
+    where += " ?,";
+    whereargs.add(i.name);
+  }
+  where = where.substring(0, where.length - 1);
+  where += ')';
+  return (where, whereargs);
+}
+
+(String, List<dynamic>) nextToSqlWhere(FilterState f) {
+  String where = "";
+  List<dynamic> whereargs = [];
+
+  if (f.maxNextMilestone == null && f.minNextMilestone == null) {
+    return ("true", []);
+  }
+
+  bool hasprev = false;
+  if (f.maxNextMilestone != null) {
+    // if (hasprev) where += ' AND ';
+    where += "strftime('%s',nextMDate) <= strftime('%s',?)";
+    whereargs.add(f.maxNextMilestone!.toUtc().toIso8601String());
+
+    hasprev = true;
+  }
+
+  if (f.minNextMilestone != null) {
+    if (hasprev) where += ' AND ';
+    where += "strftime('%s',nextMDate) >= strftime('%s',?)";
+    whereargs.add(f.minNextMilestone!.toUtc().toIso8601String());
+
+    hasprev = true;
+  }
+
+  return (where, whereargs);
+}
+
+(String, List<dynamic>) endToSqlWhere(FilterState f) {
+  String where = "";
+  List<dynamic> whereargs = [];
+
+  if (f.maxEnd == null && f.minEnd == null) {
+    return ("true", []);
+  }
+
+  bool hasprev = false;
+  if (f.maxEnd != null) {
+    // if (hasprev) where += ' AND ';
+    where += "strftime('%s',endMDate) <= strftime('%s',?)";
+    whereargs.add(f.maxEnd!.toUtc().toIso8601String());
+
+    hasprev = true;
+  }
+
+  if (f.minEnd != null) {
+    if (hasprev) where += ' AND ';
+    where += "strftime('%s',endMDate) >= strftime('%s',?)";
+    whereargs.add(f.minEnd!.toUtc().toIso8601String());
+
+    hasprev = true;
+  }
+
+  return (where, whereargs);
+}

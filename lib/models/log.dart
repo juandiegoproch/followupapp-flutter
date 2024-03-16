@@ -5,7 +5,6 @@ class LogEntry {
   late String logValue;
 
   LogEntry.fromMap(Map<String, dynamic> map) {
-    print(map);
     tId = map['taskId'];
     id = map['lId'];
     createdAt = DateTime.parse(map['lastModified']);
