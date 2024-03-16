@@ -33,7 +33,8 @@ class TasksViewScreenState extends State<TaskViewScreen> {
         ),
         body: Column(children: [
           const Text("Filters:"),
-          SizedBox(
+          Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
               height: 30,
               child: ListView(
                 scrollDirection: Axis.horizontal,
@@ -41,9 +42,24 @@ class TasksViewScreenState extends State<TaskViewScreen> {
                   FilterChip(
                       label: const Text("a"),
                       onSelected: (v) => showModalBottomSheet(
-                          context: context,
-                          builder: (context) => StatefulBuilder(
-                              builder: (context, setStateL) => Text("a"))))
+                              context: context,
+                              builder: (context) => StatefulBuilder(
+                                      builder: (context, setStateL) {
+                                    return SizedBox.expand(
+                                        child: Column(
+                                      children: [
+                                        Row(children: [
+                                          Expanded(
+                                              child: Container(
+                                                  clipBehavior: Clip.hardEdge,
+                                                  height: 30,
+                                                  color: Colors.green))
+                                        ])
+                                      ],
+                                    ));
+                                  })).then((value) {
+                            // On modalBottomSheet return
+                          }))
                 ],
               )), // filters
           const Divider(
