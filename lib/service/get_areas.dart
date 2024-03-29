@@ -8,7 +8,7 @@ Future<List<Area>> getAreas() async
   var response = await db!.rawQuery("SELECT DISTINCT area FROM Tasks;");
   List<Area> area = [];
   for (dynamic p in response) {
-    area.add(Area(p["person"]));
+    area.add(Area(p["area"]));
   }
 
   return area;

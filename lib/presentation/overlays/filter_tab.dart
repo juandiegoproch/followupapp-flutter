@@ -1,76 +1,87 @@
 import 'package:flutter/material.dart';
-/*
-class BottomDrawerFilter extends StatefulWidget {
-  final Widget toggle, title, body;
+import 'package:followupapp/models/filter_state.dart';
 
-  const BottomDrawerFilter({
-    required this.toggle,
-    required this.title,
-    required this.body,
-    Key? key,
-  }) : super(key: key);
+class DrawerFilterChip extends StatefulWidget {
+  final String title;
+  final bool active;
+  final FilterState filter; // this is NOT copied as a reference!
+  final Widget Function(BuildContext, void Function(void Function()))
+      bodyBuilder;
+  final Function() onClose;
+  final Function() onBottomSheetOpen;
+  final void Function(bool) onToggle;
 
+  const DrawerFilterChip(
+      {super.key,
+      required this.title,
+      required this.active,
+      required this.filter,
+      required this.bodyBuilder,
+      required this.onClose,
+      required this.onBottomSheetOpen,
+      required this.onToggle});
   @override
   State<StatefulWidget> createState() {
-    return BottomDrawerFilterState();
+    return DrawerFilterChipState();
   }
 }
 
-class BottomDrawerFilterState extends State<BottomDrawerFilter> {
-  BottomDrawerFilterState();
-
+class DrawerFilterChipState extends State<DrawerFilterChip> {
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      child: Column(
-        children: [
-          widget.title,
-          Row(
-            children: [
-              const Spacer(),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: widget.toggle,
-              ),
-            ],
-          ),
-          widget.body,
-        ],
-      ),
-    );
-  }
-}
-*/
-
-class BottomDrawerFilter extends StatelessWidget {
-  final Widget toggle, title, body;
-  const BottomDrawerFilter({
-    super.key,
-    required this.toggle,
-    required this.title,
-    required this.body,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      child: Column(
-        children: [
-          Row(children: [Expanded(child: title)]),
-          Row(
-            children: [
-              const Spacer(),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: toggle,
-              ),
-            ],
-          ),
-          body,
-        ],
-      ),
-    );
+    return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 5),
+        child: FilterChip(
+          label: Text(widget.title),
+          selected: widget.active,
+          onSelected: (v) async {
+            await widget.onBottomSheetOpen();
+            showModalBottomSheet(
+                clipBehavior: Clip.antiAlias,
+                context: context,
+                builder: (c) {
+                  return StatefulBuilder(
+                    builder: (context, setStateL) => Column(
+                      children: [
+                        Row(children: [
+                          Expanded(
+                            child: Container(
+                              color: Colors.green,
+                              padding: const EdgeInsets.symmetric(vertical: 10),
+                              child: Center(
+                                child: Text(widget.title,
+                                    style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600)),
+                              ),
+                            ),
+                          )
+                        ]),
+                        Row(
+                          children: [
+                            const Spacer(),
+                            Container(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 10),
+                              child: Switch(
+                                value: widget.active,
+                                onChanged: (v) {
+                                  widget.onToggle(v);
+                                  setStateL(() => {});
+                                },
+                              ),
+                            )
+                          ],
+                        ),
+                        Expanded(
+                          child: widget.bodyBuilder(context, setStateL),
+                        ),
+                      ],
+                    ),
+                  );
+                }).then((value) => widget.onClose());
+          },
+        ));
   }
 }
