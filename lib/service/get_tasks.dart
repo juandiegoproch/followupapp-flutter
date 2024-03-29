@@ -119,8 +119,6 @@ Future<List<Task>> getTasks(FilterState filters) async {
         ) as result)
       ${record.$1};
   """;
-  print(query);
-  print(record.$2);
   dynamic response = await db?.rawQuery(query, record.$2);
   return [for (Map<String, dynamic> i in response) Task.fromDetailedMap(i)];
 }
