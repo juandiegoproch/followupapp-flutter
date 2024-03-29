@@ -173,7 +173,7 @@ Future<List<Task>> getTasks(FilterState filters) async {
     hasPrev = true;
   }
 
-  if (f.filterTaskStates) {
+  if (f.filterEnd) {
     if (hasPrev) where += " AND ";
 
     dynamic end = endToSqlWhere(f); // must return ('true',[]) if
