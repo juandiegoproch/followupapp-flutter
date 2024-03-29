@@ -9,7 +9,7 @@ Future<List<Task>> getTasks(FilterState filters) async {
   await whenDBUp();
 
   (String, List<dynamic>) record = toSqlWhere(filters);
-
+  // TODO: use something decent like an ORM for this
   String query = """
     -- Returns each task with next milesone and end milestone concatenated in order
     -- next milestone is first ordered by following criteria: mDate is in future, abs(date-today)
