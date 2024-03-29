@@ -35,51 +35,54 @@ class DrawerFilterChipState extends State<DrawerFilterChip> {
           selected: widget.active,
           onSelected: (v) async {
             await widget.onBottomSheetOpen();
-            showModalBottomSheet(
-                clipBehavior: Clip.antiAlias,
-                context: context,
-                builder: (c) {
-                  return StatefulBuilder(
-                    builder: (context, setStateL) => Column(
-                      children: [
-                        Row(children: [
-                          Expanded(
-                            child: Container(
-                              color: Colors.green,
-                              padding: const EdgeInsets.symmetric(vertical: 10),
-                              child: Center(
-                                child: Text(widget.title,
-                                    style: const TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w600)),
-                              ),
-                            ),
-                          )
-                        ]),
-                        Row(
-                          children: [
-                            const Spacer(),
-                            Container(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 10),
-                              child: Switch(
-                                value: widget.active,
-                                onChanged: (v) {
-                                  widget.onToggle(v);
-                                  setStateL(() => {});
-                                },
+            if (context.mounted) {
+              showModalBottomSheet(
+                  clipBehavior: Clip.antiAlias,
+                  context: context,
+                  builder: (c) {
+                    return StatefulBuilder(
+                      builder: (context, setStateL) => Column(
+                        children: [
+                          Row(children: [
+                            Expanded(
+                              child: Container(
+                                color: Colors.green,
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 10),
+                                child: Center(
+                                  child: Text(widget.title,
+                                      style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w600)),
+                                ),
                               ),
                             )
-                          ],
-                        ),
-                        Expanded(
-                          child: widget.bodyBuilder(context, setStateL),
-                        ),
-                      ],
-                    ),
-                  );
-                }).then((value) => widget.onClose());
+                          ]),
+                          Row(
+                            children: [
+                              const Spacer(),
+                              Container(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 10),
+                                child: Switch(
+                                  value: widget.active,
+                                  onChanged: (v) {
+                                    widget.onToggle(v);
+                                    setStateL(() => {});
+                                  },
+                                ),
+                              )
+                            ],
+                          ),
+                          Expanded(
+                            child: widget.bodyBuilder(context, setStateL),
+                          ),
+                        ],
+                      ),
+                    );
+                  }).then((value) => widget.onClose());
+            }
           },
         ));
   }

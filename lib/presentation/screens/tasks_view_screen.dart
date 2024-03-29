@@ -7,6 +7,7 @@ import 'package:followupapp/presentation/common/labeled_date_picker.dart';
 import 'package:followupapp/presentation/common/task_indicator_widget.dart';
 import 'package:followupapp/presentation/common/task_summary_widget.dart';
 import 'package:followupapp/presentation/overlays/filter_tab.dart';
+import 'package:followupapp/presentation/screens/task_create_or_edit.dart';
 import 'package:followupapp/service/get_areas.dart';
 import 'package:followupapp/service/get_people.dart';
 import 'package:followupapp/service/get_task_states.dart';
@@ -35,12 +36,13 @@ class TasksViewScreenState extends State<TaskViewScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: const Center(
-            child: Text("Tareas", style: TextStyle(color: Colors.white)),
-          ),
+      appBar: AppBar(
+        title: const Center(
+          child: Text("Tareas", style: TextStyle(color: Colors.white)),
         ),
-        body: Column(children: [
+      ),
+      body: Column(
+        children: [
           const Text("Filters:"),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -322,16 +324,43 @@ class TasksViewScreenState extends State<TaskViewScreen> {
             endIndent: 10,
           ),
           Expanded(
-              child: ListView(children: [
-            for (Task t in tasks)
-              TaskSummaryWidget(
-                t,
-                onNavigatorReturnFromDetails: () => getTasks(filters)
-                    .then((value) => setState(() => tasks = value)),
-                onNavigatorReturnFromLog: () => getTasks(filters)
-                    .then((value) => setState(() => tasks = value)),
-              )
-          ])), // tasks
-        ]));
+            child: Column(children: [
+              Expanded(
+                child: ListView(
+                  children: [
+                    for (Task t in tasks)
+                      TaskSummaryWidget(
+                        t,
+                        onNavigatorReturnFromDetails: () => getTasks(filters)
+                            .then((value) => setState(() => tasks = value)),
+                        onNavigatorReturnFromLog: () => getTasks(filters)
+                            .then((value) => setState(() => tasks = value)),
+                      )
+                  ],
+                ),
+              ),
+              Container(
+                alignment: Alignment.bottomRight,
+                padding: const EdgeInsets.all(10),
+                child: IconButton(
+                  style: ButtonStyle(
+                      backgroundColor: MaterialStateProperty.resolveWith(
+                          (states) => Colors.green)),
+                  onPressed: () {
+                    Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const TaskCreateOrEdit()))
+                        .then((value) => getTasks(filters)
+                            .then((v) => setState(() => tasks = v)));
+                  },
+                  icon: const Icon(Icons.add),
+                ),
+              ),
+            ]),
+          ), // tasks
+        ],
+      ),
+    );
   }
 }

@@ -3,16 +3,17 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import "dart:io";
 import "package:sqflite_common_ffi/sqflite_ffi.dart";
 
+bool debug = false;
+
 Database? db;
 
-void onDatabaseOpen(Database db)
-{
-  debugOnOpen(db);
+void onDatabaseOpen(Database db) {
+  if (debug) debugOnOpen(db);
 }
 
 void onDatabaseCreate(Database database, version) {
-      database.transaction((txn) {
-        txn.execute("""
+  database.transaction((txn) {
+    txn.execute("""
       CREATE TABLE Tasks (
         taskId INTEGER PRIMARY KEY AUTOINCREMENT,
         area TEXT NOT NULL,
@@ -22,7 +23,7 @@ void onDatabaseCreate(Database database, version) {
         taskState TEXT NOT NULL -- one of uninitiated,ongoing,finalized,continuous
       );
       """);
-        txn.execute("""
+    txn.execute("""
       CREATE TABLE Milestones(
           taskId INTEGER,
           mId INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -34,7 +35,7 @@ void onDatabaseCreate(Database database, version) {
       );
       """);
 
-        txn.execute("""
+    txn.execute("""
       CREATE TABLE Logs(
           taskId INTEGER,
           lId INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -44,20 +45,18 @@ void onDatabaseCreate(Database database, version) {
           FOREIGN KEY (taskId) REFERENCES Tasks
       );
     """);
-        return Future.value(null);
-      });
-      debugOnCreate(database);
+    return Future.value(null);
+  });
+  // debugOnCreate(database);
 }
 
-void debugOnOpen(Database database) async
-{
+void debugOnOpen(Database database) async {
   debugPrint("Opening db at ${await getDatabasesPath()}");
   debugPrint("DB open!");
 }
 
-void debugOnCreate(Database database)
-{
-  String debugData = """  
+void debugOnCreate(Database database) {
+  String debugData = """
   INSERT INTO Tasks(area,person,program,deliverable,taskstate) VALUES
   ('finanzas','Jose Felipe','Pagos de Plastico','Plasticos pagados','uninitiated'),
   ('contabilidad', 'Manuel Flores', 'Contar pellets','Numero de pellets apuntado','ongoing'),
@@ -103,14 +102,21 @@ void startBackend() async {
   String databasePath;
   if (kIsWeb) {
     // For web platform, use in-memory database
-    databasePath = ':memory:';
+    databasePath = ':memory:'; // TODO: make it persist in browser
   } else {
     // For non-web platforms, use file-based database
     databasePath = "followupapp.db";
   }
 
   // Open the database
-  // deleteDatabase('followupapp.db'); // HACK: for testing
+
+  /************** HACK: MILLION CHECK BEFORE DEPLOYMENT ***********
+  * FOR TESTING, IT WORKS TO DELETE THE DATABASE            * 
+  *   USE deleteDatabase(<databasePath>) to do it           *
+  *  THIS WORKS BUT IS REALLY DANGEROUS SO NEVER LEAVE THE  *
+  *  CODE, EVEN AS A COMMENT IN A RELEASE VERSION           *
+  ***********************************************************/
+
   db = await openDatabase(
     databasePath,
     version: 1,
@@ -127,7 +133,8 @@ Future<void> whenDBUp() async {
     if (db != null && db!.isOpen) {
       return Future.value();
     } else {
-      await Future.delayed(const Duration(milliseconds: milis)); //pause execution without blocking
+      await Future.delayed(const Duration(
+          milliseconds: milis)); //pause execution without blocking
     }
   }
   // if the database doesnt respond in three attempts, assume it's broken
