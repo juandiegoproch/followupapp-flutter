@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:followupapp/models/filter_state.dart';
 
 class DrawerFilterChip extends StatefulWidget {
   final String title;
   final bool active;
-  final FilterState filter; // this is NOT copied as a reference!
+  // final FilterState filter; // this is NOT copied as a reference!
   final Widget Function(BuildContext, void Function(void Function()))
       bodyBuilder;
   final Function() onClose;
@@ -15,7 +14,7 @@ class DrawerFilterChip extends StatefulWidget {
       {super.key,
       required this.title,
       required this.active,
-      required this.filter,
+      // required this.filter,
       required this.bodyBuilder,
       required this.onClose,
       required this.onBottomSheetOpen,

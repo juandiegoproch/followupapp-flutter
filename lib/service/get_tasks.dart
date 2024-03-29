@@ -119,6 +119,8 @@ Future<List<Task>> getTasks(FilterState filters) async {
         ) as result)
       ${record.$1};
   """;
+  print(query);
+  print(record.$2);
   dynamic response = await db?.rawQuery(query, record.$2);
   return [for (Map<String, dynamic> i in response) Task.fromDetailedMap(i)];
 }
@@ -173,7 +175,7 @@ Future<List<Task>> getTasks(FilterState filters) async {
     hasPrev = true;
   }
 
-  if (f.filterTaskStates) {
+  if (f.filterEnd) {
     if (hasPrev) where += " AND ";
 
     dynamic end = endToSqlWhere(f); // must return ('true',[]) if
